@@ -165,15 +165,23 @@ function render() {
   /* Leaderboard */
   leaderboard.innerHTML = Object.entries(data.players)
     .sort((a, b) => b[1] - a[1])
-    .map(([p, s], i) => `
+    .map(([p, s], i) => {
+      let medal = "";
+      if (i === 0) medal = "🥇";
+      else if (i === 1) medal = "🥈";
+      else if (i === 2) medal = "🥉";
+
+      return `
       <li class="flex justify-between items-center py-3 px-2 hover:bg-gray-50 transition-colors">
         <div class="flex items-center gap-3">
-          <span class="text-gray-400 font-mono w-4">${i + 1}</span>
+          <span class="text-gray-400 font-mono w-5 text-right">${i + 1}.</span>
           <span class="font-medium text-gray-800">${p}</span>
+          <span class="text-xl ml-1">${medal}</span>
         </div>
         <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-bold">${s > 0 ? '+' : ''}${s}</span>
       </li>
-    `)
+    `
+    })
     .join("");
 
   /* History */
