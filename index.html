@@ -1,60 +1,44 @@
-<!DOCTYPE html>
-<html lang="en">
+<body class="bg-gray-100 p-3 max-w-md mx-auto">
 
-<head>
-  <meta charset="UTF-8" />
-  <title>🏸 Badminton Tracker</title>
-
-  <!-- Tailwind CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.json" />
-</head>
-
-<body class="bg-gray-100 p-4 max-w-md mx-auto">
-
-  <h1 class="text-2xl font-bold mb-4">🏸 Badminton Tracker</h1>
+  <h1 class="text-xl font-bold mb-3">🏸 Badminton Tracker</h1>
 
   <!-- Add Player -->
-  <div class="bg-white p-3 rounded shadow mb-4">
-    <input id="playerName" class="border p-2 w-full" placeholder="Player name" />
+  <div class="bg-white p-3 rounded shadow mb-3">
+    <input id="playerName" class="border p-2 w-full rounded" placeholder="Add player name" />
     <button onclick="addPlayer()" class="btn mt-2">Add Player</button>
   </div>
 
-  <!-- Bulk Import -->
-  <div class="bg-white p-3 rounded shadow mb-4">
-    <textarea id="bulkInput" rows="6" class="border p-2 w-full"
-      placeholder="David Adeline 1 vs Aaron Bobby 0"></textarea>
-    <button onclick="importMatches()" class="btn mt-2">Import Matches</button>
+  <!-- Player Tags -->
+  <div class="bg-white p-3 rounded shadow mb-3">
+    <h2 class="font-semibold mb-2">Players</h2>
+    <div id="playerTags" class="flex flex-wrap gap-2"></div>
   </div>
 
-  <!-- Controls -->
-  <div class="flex gap-2 mb-4">
-    <button onclick="undoLastMatch()" class="btn bg-yellow-500">Undo</button>
-    <button onclick="resetGame()" class="btn bg-red-500">Reset</button>
-  </div>
+  <!-- Match Recorder -->
+  <div class="bg-white p-3 rounded shadow mb-3">
+    <h2 class="font-semibold mb-2">Record Match</h2>
 
-  <!-- Export / Import -->
-  <div class="bg-white p-3 rounded shadow mb-4">
-    <button onclick="exportData()" class="btn">Export</button>
-    <input type="file" onchange="importData(event)" class="mt-2" />
+    <div id="selectedTeams" class="text-sm mb-2 font-semibold text-center"></div>
+
+    <div class="flex gap-2 mb-2">
+      <input id="scoreA" type="number" class="border p-2 w-1/2 rounded" placeholder="Team A score" />
+      <input id="scoreB" type="number" class="border p-2 w-1/2 rounded" placeholder="Team B score" />
+    </div>
+
+    <button onclick="saveMatch()" class="btn">Save Match</button>
   </div>
 
   <!-- Leaderboard -->
+  <div class="bg-white p-3 rounded shadow mb-3">
+    <h2 class="font-semibold mb-2">📊 Leaderboard</h2>
+    <ul id="leaderboard" class="text-sm"></ul>
+  </div>
+
+  <!-- History -->
   <div class="bg-white p-3 rounded shadow">
-    <h2 class="font-bold mb-2">📊 Leaderboard</h2>
-    <ul id="leaderboard"></ul>
+    <h2 class="font-semibold mb-2">📜 History</h2>
+    <ul id="history" class="text-sm space-y-1"></ul>
   </div>
 
   <script src="app.js"></script>
-
-  <style>
-    .btn {
-      @apply bg-blue-600 text-white px-3 py-2 rounded w-full;
-    }
-  </style>
-
 </body>
-
-</html>

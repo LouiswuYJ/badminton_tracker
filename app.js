@@ -1,4 +1,5 @@
 const KEY = "badminton_tracker";
+let selected = [];
 
 function load() {
   return JSON.parse(localStorage.getItem(KEY)) || {
@@ -11,13 +12,9 @@ function save(data) {
   localStorage.setItem(KEY, JSON.stringify(data));
 }
 
-function normalize(name) {
-  return name === "Boby" ? "Bobby" : name;
-}
-
-/* -------- Players -------- */
+/* ---------- Players ---------- */
 function addPlayer() {
-  const name = normalize(playerName.value.trim());
+  const name = playerName.value.trim();
   if (!name) return;
 
   const data = load();
@@ -27,93 +24,129 @@ function addPlayer() {
   render();
 }
 
-/* -------- Bulk Import -------- */
-function importMatches() {
+function removePlayer(name) {
   const data = load();
-  bulkInput.value.trim().split("\n").forEach(line => {
-    const p = line.split(" ");
-    if (p.length < 7) return;
-
-    const t1 = [normalize(p[0]), normalize(p[1])];
-    const t2 = [normalize(p[4]), normalize(p[5])];
-    const win1 = p[2] === "1";
-
-    [...t1, ...t2].forEach(n => data.players[n] ??= 0);
-
-    if (win1) {
-      t1.forEach(n => data.players[n]++);
-      t2.forEach(n => data.players[n]--);
-    } else {
-      t2.forEach(n => data.players[n]++);
-      t1.forEach(n => data.players[n]--);
-    }
-
-    data.matches.push({ t1, t2, win1 });
-  });
-
+  delete data.players[name];
+  selected = selected.filter(p => p !== name);
   save(data);
-  bulkInput.value = "";
   render();
 }
 
-/* -------- Undo -------- */
-function undoLastMatch() {
-  const data = load();
-  const m = data.matches.pop();
-  if (!m) return;
+/* ---------- Tags ---------- */
+function togglePlayer(name) {
+  if (selected.includes(name)) {
+    selected = selected.filter(p => p !== name);
+  } else if (selected.length < 4) {
+    selected.push(name);
+  }
+  render();
+}
 
-  if (m.win1) {
-    m.t1.forEach(n => data.players[n]--);
-    m.t2.forEach(n => data.players[n]++);
+/* ---------- Match ---------- */
+function saveMatch() {
+  if (selected.length !== 4) {
+    alert("Select exactly 4 players");
+    return;
+  }
+
+  const a = Number(scoreA.value);
+  const b = Number(scoreB.value);
+  if (a === b || isNaN(a) || isNaN(b)) {
+    alert("Invalid score");
+    return;
+  }
+
+  const data = load();
+  const teamA = selected.slice(0, 2);
+  const teamB = selected.slice(2, 4);
+  const winner = a > b ? "A" : "B";
+
+  if (winner === "A") {
+    teamA.forEach(p => data.players[p]++);
+    teamB.forEach(p => data.players[p]--);
   } else {
-    m.t2.forEach(n => data.players[n]--);
-    m.t1.forEach(n => data.players[n]++);
+    teamB.forEach(p => data.players[p]++);
+    teamA.forEach(p => data.players[p]--);
+  }
+
+  data.matches.push({
+    teamA, teamB, scoreA: a, scoreB: b, winner
+  });
+
+  selected = [];
+  scoreA.value = "";
+  scoreB.value = "";
+  save(data);
+  render();
+}
+
+/* ---------- Delete Match ---------- */
+function deleteMatch(index) {
+  const data = load();
+  const m = data.matches.splice(index, 1)[0];
+
+  if (m.winner === "A") {
+    m.teamA.forEach(p => data.players[p]--);
+    m.teamB.forEach(p => data.players[p]++);
+  } else {
+    m.teamB.forEach(p => data.players[p]--);
+    m.teamA.forEach(p => data.players[p]++);
   }
 
   save(data);
   render();
 }
 
-/* -------- Reset -------- */
-function resetGame() {
-  if (!confirm("Reset all data?")) return;
-  localStorage.removeItem(KEY);
-  render();
-}
-
-/* -------- Export / Import -------- */
-function exportData() {
-  const data = load();
-  const blob = new Blob([JSON.stringify(data, null, 2)]);
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "badminton.json";
-  a.click();
-}
-
-function importData(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const r = new FileReader();
-  r.onload = () => {
-    localStorage.setItem(KEY, r.result);
-    render();
-  };
-  r.readAsText(file);
-}
-
-/* -------- Render -------- */
+/* ---------- Render ---------- */
 function render() {
   const data = load();
+
+  /* Player Tags */
+  playerTags.innerHTML = Object.keys(data.players).map(name => `
+    <div class="relative">
+      <span onclick="togglePlayer('${name}')"
+        class="px-3 py-1 rounded-full border-2 text-sm cursor-pointer select-none
+        ${selected.includes(name)
+      ? "bg-blue-600 border-blue-600 text-white"
+      : "bg-white border-blue-400"}">
+        ${name}
+      </span>
+
+      <span onclick="removePlayer('${name}')"
+        class="absolute -top-1 -right-1 bg-red-500 text-white
+        text-xs rounded-full w-4 h-4 flex items-center justify-center cursor-pointer">
+        ×
+      </span>
+    </div>
+  `).join("");
+
+  /* Selected Teams */
+  if (selected.length > 0) {
+    const a = selected.slice(0, 2).join(" + ");
+    const b = selected.slice(2).join(" + ");
+    selectedTeams.innerHTML = `${a || "?"} <b>VS</b> ${b || "?"}`;
+  } else {
+    selectedTeams.innerHTML = "";
+  }
+
+  /* Leaderboard */
   leaderboard.innerHTML = Object.entries(data.players)
     .sort((a, b) => b[1] - a[1])
     .map(([p, s]) => `<li>${p}: <b>${s}</b></li>`)
     .join("");
+
+  /* History */
+  history.innerHTML = data.matches.map((m, i) => `
+    <li class="flex justify-between items-center">
+      <span>
+        ${m.teamA.join("+")} (${m.scoreA})
+        vs
+        ${m.teamB.join("+")} (${m.scoreB})
+      </span>
+      <button onclick="deleteMatch(${i})"
+        class="text-red-500 text-sm">✕</button>
+    </li>
+  `).reverse().join("");
 }
 
 render();
-
-/* -------- PWA -------- */
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js");
-}
