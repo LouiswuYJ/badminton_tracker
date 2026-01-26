@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>🏸 Badminton Tracker</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+</head>
+
+<body class="bg-gray-100 p-4 max-w-md mx-auto">
+
+  <h1 class="text-2xl font-bold mb-4">🏸 Badminton Tracker</h1>
+
+  <!-- Add Player -->
+  <div class="bg-white p-3 rounded shadow mb-4">
+    <input id="playerName" class="border p-2 w-full" placeholder="Player name" />
+    <button onclick="addPlayer()" class="btn mt-2">Add Player</button>
+  </div>
+
+  <!-- Bulk Import -->
+  <div class="bg-white p-3 rounded shadow mb-4">
+    <textarea id="bulkInput" rows="6" class="border p-2 w-full"
+      placeholder="David Adeline 1 vs Aaron Bobby 0"></textarea>
+    <button onclick="importMatches()" class="btn mt-2">Import Matches</button>
+  </div>
+
+  <!-- Controls -->
+  <div class="flex gap-2 mb-4">
+    <button onclick="undoLastMatch()" class="btn bg-yellow-500">Undo</button>
+    <button onclick="resetGame()" class="btn bg-red-500">Reset</button>
+  </div>
+
+  <!-- Export / Import -->
+  <div class="bg-white p-3 rounded shadow mb-4">
+    <button onclick="exportData()" class="btn">Export</button>
+    <input type="file" onchange="importData(event)" class="mt-2" />
+  </div>
+
+  <!-- Leaderboard -->
+  <div class="bg-white p-3 rounded shadow">
+    <h2 class="font-bold mb-2">📊 Leaderboard</h2>
+    <ul id="leaderboard"></ul>
+  </div>
+
+  <script src="app.js"></script>
+
+  <style>
+    .btn {
+      @apply bg-blue-600 text-white px-3 py-2 rounded w-full;
+    }
+  </style>
+
+</body>
+
+</html>
