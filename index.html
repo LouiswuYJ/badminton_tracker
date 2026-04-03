@@ -75,12 +75,12 @@
           <span class="text-xl">🏸</span>
         </div>
         <div>
-          <h1 class="text-xl font-bold text-slate-800 leading-tight">Badminton Tracker</h1>
-          <p class="text-[11px] text-slate-400 font-medium tracking-wide uppercase">Match & Score Manager</p>
+          <h1 class="text-2xl font-bold text-slate-800 leading-tight">Badminton Tracker</h1>
+          <p class="text-xs text-slate-400 font-medium tracking-wide uppercase">Match & Score Manager</p>
         </div>
       </div>
       <button onclick="resetData()"
-        class="text-xs text-slate-400 hover:text-red-500 transition-colors px-3 py-1.5 rounded-lg hover:bg-red-50">
+        class="text-sm text-slate-400 hover:text-red-500 transition-colors px-3 py-1.5 rounded-lg hover:bg-red-50">
         Reset Data
       </button>
     </div>
@@ -95,16 +95,16 @@
 
         <!-- Add Player -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
-          <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Add Player</label>
+          <label class="block text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">Add Player</label>
           <div class="flex gap-2">
             <input id="playerName"
-              class="border border-slate-200 px-4 py-2.5 flex-grow rounded-xl text-sm bg-slate-50/50
+              class="border border-slate-200 px-4 py-2.5 flex-grow rounded-xl text-base bg-slate-50/50
                      focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400
                      placeholder:text-slate-300 transition-all"
               placeholder="Enter name..." />
             <button onclick="addPlayer()"
               class="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white px-5 py-2.5 rounded-xl
-                     hover:from-indigo-600 hover:to-indigo-700 font-semibold text-sm shadow-md
+                     hover:from-indigo-600 hover:to-indigo-700 font-semibold text-base shadow-md
                      shadow-indigo-200 transition-all active:scale-95">
               Add
             </button>
@@ -114,27 +114,27 @@
         <!-- Player Tags -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
           <div class="flex items-center justify-between mb-3">
-            <h2 class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Players</h2>
+            <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Players</h2>
             <span id="selectionCount"
-              class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-400">
+              class="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-400">
               0/4
             </span>
           </div>
           <div id="playerTags" class="flex flex-wrap gap-2 min-h-[48px]"></div>
-          <p class="text-[11px] text-slate-400 mt-3">Tap to select 4 players for a match</p>
+          <p class="text-xs text-slate-400 mt-3">Tap to select 4 players for a match</p>
         </div>
 
         <!-- Match Recorder -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
           <!-- Match header with gradient accent -->
           <div class="bg-gradient-to-r from-indigo-500 to-purple-600 px-5 py-3">
-            <h2 class="text-sm font-semibold text-white/90 uppercase tracking-wider">Record Match</h2>
+            <h2 class="text-base font-semibold text-white/90 uppercase tracking-wider">Record Match</h2>
           </div>
 
           <div class="p-5 space-y-4">
             <!-- Team Display -->
             <div id="selectedTeams"
-              class="text-sm font-semibold text-center py-3 px-4 bg-slate-50 rounded-xl
+              class="text-base font-semibold text-center py-3 px-4 bg-slate-50 rounded-xl
                      text-slate-500 border border-dashed border-slate-200">
               <span class="text-slate-400">Select 4 players above...</span>
             </div>
@@ -142,7 +142,7 @@
             <!-- Score Inputs -->
             <div class="flex gap-3">
               <div class="flex-1">
-                <label class="block text-[11px] text-slate-400 mb-1.5 font-medium uppercase tracking-wider text-center">Team A</label>
+                <label class="block text-xs text-slate-400 mb-1.5 font-medium uppercase tracking-wider text-center">Team A</label>
                 <input id="scoreA" type="number"
                   class="border border-slate-200 p-3 w-full rounded-xl text-center text-xl font-bold
                          bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-indigo-500/20
@@ -152,7 +152,7 @@
                 <span class="text-slate-300 font-bold text-lg">:</span>
               </div>
               <div class="flex-1">
-                <label class="block text-[11px] text-slate-400 mb-1.5 font-medium uppercase tracking-wider text-center">Team B</label>
+                <label class="block text-xs text-slate-400 mb-1.5 font-medium uppercase tracking-wider text-center">Team B</label>
                 <input id="scoreB" type="number"
                   class="border border-slate-200 p-3 w-full rounded-xl text-center text-xl font-bold
                          bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-indigo-500/20
@@ -164,14 +164,14 @@
             <button onclick="saveMatch()"
               class="w-full bg-gradient-to-r from-emerald-500 to-green-600 text-white px-4 py-3.5
                      rounded-xl hover:from-emerald-600 hover:to-green-700 font-bold shadow-lg
-                     shadow-emerald-200/50 transition-all active:scale-[0.98] text-sm tracking-wide">
+                     shadow-emerald-200/50 transition-all active:scale-[0.98] text-base tracking-wide">
               Save Match Result
             </button>
 
             <!-- Divider -->
             <div class="relative flex items-center">
               <div class="flex-grow border-t border-slate-100"></div>
-              <span class="flex-shrink-0 mx-3 text-slate-300 text-[11px] font-medium uppercase tracking-wider">Quick Record</span>
+              <span class="flex-shrink-0 mx-3 text-slate-300 text-xs font-medium uppercase tracking-wider">Quick Record</span>
               <div class="flex-grow border-t border-slate-100"></div>
             </div>
 
@@ -179,12 +179,12 @@
             <div class="grid grid-cols-2 gap-3">
               <button onclick="quickWin('A')"
                 class="bg-indigo-50 text-indigo-600 px-3 py-2.5 rounded-xl hover:bg-indigo-100
-                       font-semibold text-sm border border-indigo-100 transition-all active:scale-95">
+                       font-semibold text-base border border-indigo-100 transition-all active:scale-95">
                 Team A Won
               </button>
               <button onclick="quickWin('B')"
                 class="bg-purple-50 text-purple-600 px-3 py-2.5 rounded-xl hover:bg-purple-100
-                       font-semibold text-sm border border-purple-100 transition-all active:scale-95">
+                       font-semibold text-base border border-purple-100 transition-all active:scale-95">
                 Team B Won
               </button>
             </div>
@@ -201,20 +201,20 @@
           <!-- Leaderboard -->
           <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
             <div class="px-5 pt-5 pb-3 flex items-center justify-between">
-              <h2 class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Leaderboard</h2>
-              <span class="text-[11px] text-slate-400 font-medium" id="playerCount"></span>
+              <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Leaderboard</h2>
+              <span class="text-xs text-slate-400 font-medium" id="playerCount"></span>
             </div>
-            <ul id="leaderboard" class="text-sm divide-y divide-slate-50 px-2 pb-3"></ul>
+            <ul id="leaderboard" class="text-base divide-y divide-slate-50 px-2 pb-3"></ul>
           </div>
 
           <!-- Match History -->
           <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
             <div class="px-5 pt-5 pb-3 flex items-center justify-between">
-              <h2 class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Match History</h2>
-              <span class="text-[11px] text-slate-400 font-medium" id="matchCount"></span>
+              <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Match History</h2>
+              <span class="text-xs text-slate-400 font-medium" id="matchCount"></span>
             </div>
             <ul id="matchHistory"
-              class="text-sm space-y-2 max-h-[520px] overflow-y-auto custom-scroll px-4 pb-4">
+              class="text-base space-y-2 max-h-[520px] overflow-y-auto custom-scroll px-4 pb-4">
             </ul>
           </div>
 
@@ -223,9 +223,9 @@
         <!-- Games Played (full width) -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
           <div class="px-5 pt-5 pb-3 flex items-center justify-between">
-            <h2 class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Games Played</h2>
+            <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Games Played</h2>
           </div>
-          <ul id="gamesPlayed" class="text-sm divide-y divide-slate-50 px-2 pb-3"></ul>
+          <ul id="gamesPlayed" class="text-base divide-y divide-slate-50 px-2 pb-3"></ul>
         </div>
 
       </div>
@@ -236,7 +236,7 @@
     <div class="mt-8 mb-4 text-center">
       <button onclick="shareToWhatsApp()"
         class="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#1da851] text-white px-6 py-3
-               rounded-xl font-semibold text-sm shadow-lg shadow-emerald-200/50 transition-all active:scale-95">
+               rounded-xl font-semibold text-base shadow-lg shadow-emerald-200/50 transition-all active:scale-95">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
         Share to WhatsApp
       </button>

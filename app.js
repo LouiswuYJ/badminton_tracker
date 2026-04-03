@@ -261,7 +261,7 @@ function render() {
   const countEl = document.getElementById("selectionCount");
   if (countEl) {
     countEl.textContent = `${selected.length}/4`;
-    countEl.className = `text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+    countEl.className = `text-xs font-semibold px-2 py-0.5 rounded-full ${
       selected.length === 4
         ? "bg-emerald-100 text-emerald-600"
         : selected.length > 0
@@ -280,7 +280,7 @@ function render() {
     return `
     <div class="relative group">
       <button onclick="togglePlayer('${name}')"
-        class="player-tag px-3.5 py-1.5 rounded-xl text-sm cursor-pointer select-none font-medium
+        class="player-tag px-4 py-2 rounded-xl text-base cursor-pointer select-none font-medium
         ${isSelected
           ? idx < 2
             ? "bg-indigo-500 text-white shadow-md shadow-indigo-200 ring-2 ring-indigo-300"
@@ -288,11 +288,11 @@ function render() {
           : "bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200"
         } ${isSelected ? "selected" : ""}">
         ${name}
-        ${teamLabel ? `<span class="text-[10px] opacity-75 ml-0.5">${teamLabel}</span>` : ""}
+        ${teamLabel ? `<span class="text-xs opacity-75 ml-0.5">${teamLabel}</span>` : ""}
       </button>
       <button onclick="removePlayer('${name}')"
         class="absolute -top-1.5 -right-1.5 bg-slate-300 hover:bg-red-500 text-white
-        text-[10px] rounded-full w-4 h-4 flex items-center justify-center cursor-pointer
+        text-xs rounded-full w-5 h-5 flex items-center justify-center cursor-pointer
         opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all shadow-sm"
         aria-label="Remove ${name}">
         &times;
@@ -315,15 +315,15 @@ function render() {
     selectedTeams.innerHTML = `
       <div class="flex items-center justify-center gap-3 py-1">
         <span>${renderClickable(a, "indigo")}</span>
-        <span class="text-[10px] font-bold text-slate-300 uppercase tracking-widest px-2">vs</span>
+        <span class="text-xs font-bold text-slate-300 uppercase tracking-widest px-2">vs</span>
         <span>${renderClickable(b, "purple")}</span>
       </div>
-      <p class="text-[10px] text-slate-400 mt-1">Tap a name to deselect</p>
+      <p class="text-xs text-slate-400 mt-1">Tap a name to deselect</p>
     `;
-    selectedTeams.className = "text-sm font-semibold text-center py-3 px-4 bg-gradient-to-r from-indigo-50/50 to-purple-50/50 rounded-xl border border-indigo-100";
+    selectedTeams.className = "text-base font-semibold text-center py-3 px-4 bg-gradient-to-r from-indigo-50/50 to-purple-50/50 rounded-xl border border-indigo-100";
   } else {
     selectedTeams.innerHTML = '<span class="text-slate-400">Select 4 players above...</span>';
-    selectedTeams.className = "text-sm font-semibold text-center py-3 px-4 bg-slate-50 rounded-xl text-slate-500 border border-dashed border-slate-200";
+    selectedTeams.className = "text-base font-semibold text-center py-3 px-4 bg-slate-50 rounded-xl text-slate-500 border border-dashed border-slate-200";
   }
 
   /* Player count */
@@ -353,7 +353,7 @@ function render() {
   });
 
   leaderboard.innerHTML = groups.length === 0
-    ? '<li class="text-center py-8 text-slate-300 text-sm">No players yet</li>'
+    ? '<li class="text-center py-8 text-slate-300 text-base">No players yet</li>'
     : groups.map(g => {
       const { rank, names, score: s } = g;
       const medals = { 1: "🥇", 2: "🥈", 3: "🥉" };
@@ -370,15 +370,15 @@ function render() {
       return `
       <li class="flex justify-between items-center py-2.5 px-3 rounded-xl mx-1 transition-colors ${bg}">
         <div class="flex items-center gap-2.5">
-          <span class="text-slate-300 font-mono text-xs w-4 text-right ${isTop3 ? "font-bold text-slate-500" : ""}">${rank}</span>
+          <span class="text-slate-300 font-mono text-sm w-5 text-right ${isTop3 ? "font-bold text-slate-500" : ""}">${rank}</span>
           ${medal ? `<span class="text-lg leading-none">${medal}</span>` : '<span class="w-[18px]"></span>'}
-          <span class="font-semibold text-sm">${names.map(n =>
+          <span class="font-semibold text-base">${names.map(n =>
             data.removedPlayers.includes(n)
-              ? `<span class="text-slate-400 italic">${n}</span><button onclick="restorePlayer('${n}')" class="ml-1 text-[10px] text-indigo-500 hover:text-indigo-700 font-semibold not-italic" title="Restore player">↩</button>`
+              ? `<span class="text-slate-400 italic">${n}</span><button onclick="restorePlayer('${n}')" class="ml-1 text-xs text-indigo-500 hover:text-indigo-700 font-semibold not-italic" title="Restore player">↩</button>`
               : `<span class="text-slate-700">${n}</span>`
           ).join(", ")}</span>
         </div>
-        <span class="${scoreColor} px-2.5 py-1 rounded-lg text-xs font-bold tabular-nums">
+        <span class="${scoreColor} px-2.5 py-1 rounded-lg text-sm font-bold tabular-nums">
           ${s > 0 ? '+' : ''}${s}
         </span>
       </li>
@@ -397,7 +397,7 @@ function render() {
   const gamesPlayedEl = document.getElementById("gamesPlayed");
   if (gamesPlayedEl) {
     gamesPlayedEl.innerHTML = gameEntries.length === 0
-      ? '<li class="text-center py-8 text-slate-300 text-sm">No players yet</li>'
+      ? '<li class="text-center py-8 text-slate-300 text-base">No players yet</li>'
       : gameEntries.map(([p, count], i) => {
         const isRemoved = data.removedPlayers.includes(p);
         const maxCount = gameEntries[0][1];
@@ -406,15 +406,15 @@ function render() {
         return `
         <li class="flex justify-between items-center py-2.5 px-3 rounded-xl mx-1 hover:bg-slate-50 transition-colors">
           <div class="flex items-center gap-2.5 flex-1 min-w-0">
-            <span class="text-slate-300 font-mono text-xs w-4 text-right">${i + 1}</span>
+            <span class="text-slate-300 font-mono text-sm w-5 text-right">${i + 1}</span>
             <div class="flex-1 min-w-0">
-              <span class="font-semibold text-sm ${isRemoved ? "text-slate-400 italic" : "text-slate-700"}">${p}</span>
+              <span class="font-semibold text-base ${isRemoved ? "text-slate-400 italic" : "text-slate-700"}">${p}</span>
               <div class="mt-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                 <div class="h-full bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full transition-all" style="width: ${barWidth}%"></div>
               </div>
             </div>
           </div>
-          <span class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg text-xs font-bold tabular-nums ml-3 flex-shrink-0">
+          <span class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg text-sm font-bold tabular-nums ml-3 flex-shrink-0">
             ${count}
           </span>
         </li>
@@ -429,7 +429,7 @@ function render() {
 
   /* History — ascending (oldest first) */
   matchHistory.innerHTML = data.matches.length === 0
-    ? '<li class="text-center py-8 text-slate-300 text-sm">No matches yet</li>'
+    ? '<li class="text-center py-8 text-slate-300 text-base">No matches yet</li>'
     : data.matches.map((m, i) => {
     const isWinA = m.winner === "A";
 
@@ -443,7 +443,7 @@ function render() {
     }
 
     const pointsBadge = m.points > 1
-      ? `<span class="bg-amber-100 text-amber-700 text-[10px] font-bold px-1.5 py-0.5 rounded-md">2x</span>`
+      ? `<span class="bg-amber-100 text-amber-700 text-xs font-bold px-1.5 py-0.5 rounded-md">2x</span>`
       : "";
 
     // Format time
@@ -461,21 +461,21 @@ function render() {
       <li class="match-item flex items-center bg-slate-50/80 p-3 rounded-xl border border-slate-100 group hover:border-slate-200 transition-all">
         <div class="flex flex-col w-full min-w-0">
           <div class="flex items-center justify-between gap-2 mb-1.5">
-            <span class="text-xs truncate flex-1 text-right ${isWinA ? "font-bold text-slate-700" : "text-slate-400"}">
+            <span class="text-sm truncate flex-1 text-right ${isWinA ? "font-bold text-slate-700" : "text-slate-400"}">
               ${m.teamA.join(" + ")}
             </span>
-            <span class="text-[10px] text-slate-300 font-medium flex-shrink-0">vs</span>
-            <span class="text-xs truncate flex-1 text-left ${!isWinA ? "font-bold text-slate-700" : "text-slate-400"}">
+            <span class="text-xs text-slate-300 font-medium flex-shrink-0">vs</span>
+            <span class="text-sm truncate flex-1 text-left ${!isWinA ? "font-bold text-slate-700" : "text-slate-400"}">
               ${m.teamB.join(" + ")}
             </span>
           </div>
           <div class="flex items-center justify-center gap-3">
-            <span class="text-sm font-mono font-bold ${isWinA ? "text-emerald-600" : "text-slate-300"}">${displayA}</span>
-            <span class="text-slate-200 text-xs">-</span>
-            <span class="text-sm font-mono font-bold ${!isWinA ? "text-emerald-600" : "text-slate-300"}">${displayB}</span>
+            <span class="text-base font-mono font-bold ${isWinA ? "text-emerald-600" : "text-slate-300"}">${displayA}</span>
+            <span class="text-slate-200 text-sm">-</span>
+            <span class="text-base font-mono font-bold ${!isWinA ? "text-emerald-600" : "text-slate-300"}">${displayB}</span>
             ${pointsBadge}
           </div>
-          ${timeStr ? `<div class="text-[10px] text-slate-300 text-center mt-1">${timeStr}</div>` : ""}
+          ${timeStr ? `<div class="text-xs text-slate-300 text-center mt-1">${timeStr}</div>` : ""}
         </div>
         <button onclick="deleteMatch(${i})"
           class="ml-2 text-slate-300 hover:text-red-500 p-1.5 rounded-lg hover:bg-white
