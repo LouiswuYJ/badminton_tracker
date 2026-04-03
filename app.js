@@ -231,7 +231,7 @@ function shareToWhatsApp() {
         navigator.share({
           files: [file],
           title: "Badminton Tracker Results",
-        }).catch(() => {});
+        }).catch(() => { });
       } else {
         // Fallback: download the image
         const url = URL.createObjectURL(blob);
@@ -261,13 +261,12 @@ function render() {
   const countEl = document.getElementById("selectionCount");
   if (countEl) {
     countEl.textContent = `${selected.length}/4`;
-    countEl.className = `text-xs font-semibold px-2 py-0.5 rounded-full ${
-      selected.length === 4
-        ? "bg-emerald-100 text-emerald-600"
-        : selected.length > 0
-          ? "bg-indigo-100 text-indigo-600"
-          : "bg-slate-100 text-slate-400"
-    }`;
+    countEl.className = `text-l font-semibold px-2 py-0.5 rounded-full ${selected.length === 4
+      ? "bg-emerald-100 text-emerald-600"
+      : selected.length > 0
+        ? "bg-indigo-100 text-indigo-600"
+        : "bg-slate-100 text-slate-400"
+      }`;
   }
 
   /* Player Tags — only show active (non-removed) players */
@@ -282,17 +281,17 @@ function render() {
       <button onclick="togglePlayer('${name}')"
         class="player-tag px-4 py-2 rounded-xl text-base cursor-pointer select-none font-medium
         ${isSelected
-          ? idx < 2
-            ? "bg-indigo-500 text-white shadow-md shadow-indigo-200 ring-2 ring-indigo-300"
-            : "bg-purple-500 text-white shadow-md shadow-purple-200 ring-2 ring-purple-300"
-          : "bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200"
-        } ${isSelected ? "selected" : ""}">
+        ? idx < 2
+          ? "bg-indigo-500 text-white shadow-md shadow-indigo-200 ring-2 ring-indigo-300"
+          : "bg-purple-500 text-white shadow-md shadow-purple-200 ring-2 ring-purple-300"
+        : "bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200"
+      } ${isSelected ? "selected" : ""}">
         ${name}
-        ${teamLabel ? `<span class="text-xs opacity-75 ml-0.5">${teamLabel}</span>` : ""}
+        ${teamLabel ? `<span class="text-l opacity-75 ml-0.5">${teamLabel}</span>` : ""}
       </button>
       <button onclick="removePlayer('${name}')"
         class="absolute -top-1.5 -right-1.5 bg-slate-300 hover:bg-red-500 text-white
-        text-xs rounded-full w-5 h-5 flex items-center justify-center cursor-pointer
+        text-l rounded-full w-5 h-5 flex items-center justify-center cursor-pointer
         opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all shadow-sm"
         aria-label="Remove ${name}">
         &times;
@@ -308,17 +307,17 @@ function render() {
     const renderClickable = (players, color) =>
       players.length > 0
         ? players.map(p =>
-            `<span onclick="togglePlayer('${p}')" class="cursor-pointer hover:line-through hover:opacity-60 transition-all text-${color}-600 font-bold">${p}</span>`
-          ).join(` <span class="font-normal text-${color}-300">&</span> `)
+          `<span onclick="togglePlayer('${p}')" class="cursor-pointer hover:line-through hover:opacity-60 transition-all text-${color}-600 font-bold">${p}</span>`
+        ).join(` <span class="font-normal text-${color}-300">&</span> `)
         : '<span class="text-slate-300">?</span>';
 
     selectedTeams.innerHTML = `
       <div class="flex items-center justify-center gap-3 py-1">
         <span>${renderClickable(a, "indigo")}</span>
-        <span class="text-xs font-bold text-slate-300 uppercase tracking-widest px-2">vs</span>
+        <span class="text-l font-bold text-slate-300 uppercase tracking-widest px-2">vs</span>
         <span>${renderClickable(b, "purple")}</span>
       </div>
-      <p class="text-xs text-slate-400 mt-1">Tap a name to deselect</p>
+      <p class="text-l text-slate-400 mt-1">Tap a name to deselect</p>
     `;
     selectedTeams.className = "text-base font-semibold text-center py-3 px-4 bg-gradient-to-r from-indigo-50/50 to-purple-50/50 rounded-xl border border-indigo-100";
   } else {
@@ -365,20 +364,20 @@ function render() {
 
       const scoreColor = s > 0 ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/50"
         : s < 0 ? "bg-red-50 text-red-600 ring-1 ring-red-200/50"
-        : "bg-slate-50 text-slate-500 ring-1 ring-slate-200/50";
+          : "bg-slate-50 text-slate-500 ring-1 ring-slate-200/50";
 
       return `
       <li class="flex justify-between items-center py-2.5 px-3 rounded-xl mx-1 transition-colors ${bg}">
         <div class="flex items-center gap-2.5">
-          <span class="text-slate-300 font-mono text-sm w-5 text-right ${isTop3 ? "font-bold text-slate-500" : ""}">${rank}</span>
+          <span class="text-slate-300 font-mono text-xl w-5 text-right ${isTop3 ? "font-bold text-slate-500" : ""}">${rank}</span>
           ${medal ? `<span class="text-lg leading-none">${medal}</span>` : '<span class="w-[18px]"></span>'}
           <span class="font-semibold text-base">${names.map(n =>
-            data.removedPlayers.includes(n)
-              ? `<span class="text-slate-400 italic">${n}</span><button onclick="restorePlayer('${n}')" class="ml-1 text-xs text-indigo-500 hover:text-indigo-700 font-semibold not-italic" title="Restore player">↩</button>`
-              : `<span class="text-slate-700">${n}</span>`
-          ).join(", ")}</span>
+        data.removedPlayers.includes(n)
+          ? `<span class="text-slate-400 italic">${n}</span><button onclick="restorePlayer('${n}')" class="ml-1 text-l text-indigo-500 hover:text-indigo-700 font-semibold not-italic" title="Restore player">↩</button>`
+          : `<span class="text-slate-700">${n}</span>`
+      ).join(", ")}</span>
         </div>
-        <span class="${scoreColor} px-2.5 py-1 rounded-lg text-sm font-bold tabular-nums">
+        <span class="${scoreColor} px-2.5 py-1 rounded-lg text-xl font-bold tabular-nums">
           ${s > 0 ? '+' : ''}${s}
         </span>
       </li>
@@ -406,7 +405,7 @@ function render() {
         return `
         <li class="flex justify-between items-center py-2.5 px-3 rounded-xl mx-1 hover:bg-slate-50 transition-colors">
           <div class="flex items-center gap-2.5 flex-1 min-w-0">
-            <span class="text-slate-300 font-mono text-sm w-5 text-right">${i + 1}</span>
+            <span class="text-slate-300 font-mono text-xl w-5 text-right">${i + 1}</span>
             <div class="flex-1 min-w-0">
               <span class="font-semibold text-base ${isRemoved ? "text-slate-400 italic" : "text-slate-700"}">${p}</span>
               <div class="mt-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
@@ -414,7 +413,7 @@ function render() {
               </div>
             </div>
           </div>
-          <span class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg text-sm font-bold tabular-nums ml-3 flex-shrink-0">
+          <span class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg text-xl font-bold tabular-nums ml-3 flex-shrink-0">
             ${count}
           </span>
         </li>
@@ -431,51 +430,51 @@ function render() {
   matchHistory.innerHTML = data.matches.length === 0
     ? '<li class="text-center py-8 text-slate-300 text-base">No matches yet</li>'
     : data.matches.map((m, i) => {
-    const isWinA = m.winner === "A";
+      const isWinA = m.winner === "A";
 
-    let displayA, displayB;
-    if (m.scoreA !== null && m.scoreB !== null) {
-      displayA = m.scoreA;
-      displayB = m.scoreB;
-    } else {
-      displayA = isWinA ? "W" : "-";
-      displayB = !isWinA ? "W" : "-";
-    }
+      let displayA, displayB;
+      if (m.scoreA !== null && m.scoreB !== null) {
+        displayA = m.scoreA;
+        displayB = m.scoreB;
+      } else {
+        displayA = isWinA ? "W" : "-";
+        displayB = !isWinA ? "W" : "-";
+      }
 
-    const pointsBadge = m.points > 1
-      ? `<span class="bg-amber-100 text-amber-700 text-xs font-bold px-1.5 py-0.5 rounded-md">2x</span>`
-      : "";
+      const pointsBadge = m.points > 1
+        ? `<span class="bg-amber-100 text-amber-700 text-l font-bold px-1.5 py-0.5 rounded-md">2x</span>`
+        : "";
 
-    // Format time
-    let timeStr = "";
-    if (m.time) {
-      const d = new Date(m.time);
-      const month = d.toLocaleString("en", { month: "short" });
-      const day = d.getDate();
-      const hours = d.getHours().toString().padStart(2, "0");
-      const mins = d.getMinutes().toString().padStart(2, "0");
-      timeStr = `${month} ${day}, ${hours}:${mins}`;
-    }
+      // Format time
+      let timeStr = "";
+      if (m.time) {
+        const d = new Date(m.time);
+        const month = d.toLocaleString("en", { month: "short" });
+        const day = d.getDate();
+        const hours = d.getHours().toString().padStart(2, "0");
+        const mins = d.getMinutes().toString().padStart(2, "0");
+        timeStr = `${month} ${day}, ${hours}:${mins}`;
+      }
 
-    return `
+      return `
       <li class="match-item flex items-center bg-slate-50/80 p-3 rounded-xl border border-slate-100 group hover:border-slate-200 transition-all">
         <div class="flex flex-col w-full min-w-0">
           <div class="flex items-center justify-between gap-2 mb-1.5">
-            <span class="text-sm truncate flex-1 text-right ${isWinA ? "font-bold text-slate-700" : "text-slate-400"}">
+            <span class="text-xl truncate flex-1 text-right ${isWinA ? "font-bold text-slate-700" : "text-slate-400"}">
               ${m.teamA.join(" + ")}
             </span>
-            <span class="text-xs text-slate-300 font-medium flex-shrink-0">vs</span>
-            <span class="text-sm truncate flex-1 text-left ${!isWinA ? "font-bold text-slate-700" : "text-slate-400"}">
+            <span class="text-l text-slate-300 font-medium flex-shrink-0">vs</span>
+            <span class="text-xl truncate flex-1 text-left ${!isWinA ? "font-bold text-slate-700" : "text-slate-400"}">
               ${m.teamB.join(" + ")}
             </span>
           </div>
           <div class="flex items-center justify-center gap-3">
             <span class="text-base font-mono font-bold ${isWinA ? "text-emerald-600" : "text-slate-300"}">${displayA}</span>
-            <span class="text-slate-200 text-sm">-</span>
+            <span class="text-slate-200 text-xl">-</span>
             <span class="text-base font-mono font-bold ${!isWinA ? "text-emerald-600" : "text-slate-300"}">${displayB}</span>
             ${pointsBadge}
           </div>
-          ${timeStr ? `<div class="text-xs text-slate-300 text-center mt-1">${timeStr}</div>` : ""}
+          ${timeStr ? `<div class="text-l text-slate-300 text-center mt-1">${timeStr}</div>` : ""}
         </div>
         <button onclick="deleteMatch(${i})"
           class="ml-2 text-slate-300 hover:text-red-500 p-1.5 rounded-lg hover:bg-white
@@ -487,7 +486,7 @@ function render() {
         </button>
       </li>
     `;
-  }).join("");
+    }).join("");
 }
 
 render();
