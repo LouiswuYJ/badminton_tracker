@@ -241,24 +241,31 @@ function shareToWhatsApp() {
     canvas.toBlob(blob => {
       const file = new File([blob], "badminton-results.png", { type: "image/png" });
 
-      // Use Web Share API if available (mobile)
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        navigator.share({
-          files: [file],
-          title: "Badminton Tracker Results",
-        }).catch(err => {
-          if (err.name !== "AbortError") {
-            alert("Sharing failed: " + err.message);
-          }
-        }).finally(restoreBtn);
-      } else {
-        // Fallback: download the image
+      const downloadImage = () => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
         a.download = "badminton-results.png";
         a.click();
         URL.revokeObjectURL(url);
+      };
+
+      // Use Web Share API if available (requires HTTPS + mobile OS support)
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        navigator.share({
+          files: [file],
+          title: "Badminton Tracker Results",
+        }).then(() => {
+          restoreBtn();
+        }).catch(err => {
+          if (err.name !== "AbortError") {
+            downloadImage();
+            alert("Image saved! Open WhatsApp and attach the downloaded file to share.");
+          }
+          restoreBtn();
+        });
+      } else {
+        downloadImage();
         restoreBtn();
       }
     }, "image/png");
