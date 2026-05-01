@@ -200,6 +200,21 @@ function shareToWhatsApp() {
     </div>`;
   }).join("");
 
+  if (typeof html2canvas === "undefined") {
+    alert("Image library failed to load. Please check your internet connection and try again.");
+    return;
+  }
+
+  const btn = document.getElementById("shareBtn");
+  const originalHTML = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<svg class="animate-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Generating...';
+
+  const restoreBtn = () => {
+    btn.disabled = false;
+    btn.innerHTML = originalHTML;
+  };
+
   // Build the off-screen container
   const container = document.createElement("div");
   container.style.cssText = "position:fixed;left:-9999px;top:0;width:400px;background:#ffffff;font-family:Inter,system-ui,sans-serif;padding:24px;";
@@ -231,7 +246,11 @@ function shareToWhatsApp() {
         navigator.share({
           files: [file],
           title: "Badminton Tracker Results",
-        }).catch(() => { });
+        }).catch(err => {
+          if (err.name !== "AbortError") {
+            alert("Sharing failed: " + err.message);
+          }
+        }).finally(restoreBtn);
       } else {
         // Fallback: download the image
         const url = URL.createObjectURL(blob);
@@ -240,8 +259,13 @@ function shareToWhatsApp() {
         a.download = "badminton-results.png";
         a.click();
         URL.revokeObjectURL(url);
+        restoreBtn();
       }
     }, "image/png");
+  }).catch(err => {
+    if (container.parentNode) document.body.removeChild(container);
+    alert("Failed to generate image: " + err.message);
+    restoreBtn();
   });
 }
 
