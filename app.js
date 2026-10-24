@@ -47,6 +47,57 @@ function restorePlayer(name) {
 }
 
 /* ---------- Tags ---------- */
+function escapeAttr(str) {
+  return str.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+}
+
+// Tap a tag to select, long-press to remove (touch screens have no hover × button)
+function setupPlayerTags() {
+  const LONG_PRESS_MS = 500;
+  let timer = null;
+  let longPressed = false;
+  const cancel = () => clearTimeout(timer);
+
+  playerTags.addEventListener("pointerdown", e => {
+    const tag = e.target.closest("[data-player]");
+    if (!tag) return;
+    longPressed = false;
+    timer = setTimeout(() => {
+      longPressed = true;
+      removePlayer(tag.dataset.player);
+    }, LONG_PRESS_MS);
+  });
+  ["pointerup", "pointercancel", "pointerleave"].forEach(ev => playerTags.addEventListener(ev, cancel));
+  playerTags.addEventListener("contextmenu", e => e.preventDefault());
+
+  playerTags.addEventListener("click", e => {
+    const remove = e.target.closest("[data-remove]");
+    if (remove) return removePlayer(remove.dataset.remove);
+    const tag = e.target.closest("[data-player]");
+    if (!tag) return;
+    if (longPressed) {
+      longPressed = false;
+      return;
+    }
+    togglePlayer(tag.dataset.player);
+  });
+}
+
+// Enter adds a player (keyboard stays open for the next name) / saves the match
+function setupKeyboard() {
+  playerName.addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.isComposing) addPlayer();
+  });
+  scoreA.addEventListener("keydown", e => {
+    if (e.key === "Enter") scoreB.focus();
+  });
+  scoreB.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      scoreB.blur();
+      saveMatch();
+    }
+  });
+}
 function togglePlayer(name) {
   if (selected.includes(name)) {
     selected = selected.filter(p => p !== name);
@@ -290,8 +341,8 @@ function render() {
 
     return `
     <div class="relative group">
-      <button onclick="togglePlayer('${name}')"
-        class="player-tag px-4 py-2 rounded-xl text-base cursor-pointer select-none font-medium
+      <button data-player="${escapeAttr(name)}"
+        class="player-tag px-4 py-2 rounded-xl text-base cursor-pointer select-none font-medium [-webkit-touch-callout:none]
         ${isSelected
         ? idx < 2
           ? "bg-indigo-500 text-white shadow-md shadow-indigo-200 ring-2 ring-indigo-300"
@@ -301,10 +352,10 @@ function render() {
         ${name}
         ${teamLabel ? `<span class="text-l opacity-75 ml-0.5">${teamLabel}</span>` : ""}
       </button>
-      <button onclick="removePlayer('${name}')"
+      <button data-remove="${escapeAttr(name)}"
         class="absolute -top-1.5 -right-1.5 bg-slate-300 hover:bg-red-500 text-white
-        text-l rounded-full w-5 h-5 flex items-center justify-center cursor-pointer
-        opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all shadow-sm"
+        text-l rounded-full w-5 h-5 hidden lg:flex items-center justify-center cursor-pointer
+        lg:opacity-0 lg:group-hover:opacity-100 transition-all shadow-sm"
         aria-label="Remove ${name}">
         &times;
       </button>
@@ -481,8 +532,8 @@ function render() {
           ${timeStr ? `<div class="text-l text-slate-300 text-center mt-1">${timeStr}</div>` : ""}
         </div>
         <button onclick="deleteMatch(${i})"
-          class="ml-2 text-slate-300 hover:text-red-500 p-1.5 rounded-lg hover:bg-white
-                 transition-all opacity-0 group-hover:opacity-100 flex-shrink-0"
+          class="ml-1 -mr-1 text-slate-300 hover:text-red-500 p-[15px] lg:p-1.5 lg:ml-2 lg:mr-0 rounded-lg hover:bg-white
+                 transition-all lg:opacity-0 lg:group-hover:opacity-100 flex-shrink-0"
           aria-label="Delete match">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
             <path d="M18 6L6 18M6 6l12 12"/>
@@ -493,4 +544,6 @@ function render() {
     }).join("");
 }
 
+setupPlayerTags();
+setupKeyboard();
 render();
