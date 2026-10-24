@@ -148,6 +148,18 @@ function deleteMatch(index) {
   render();
 }
 
+/* ---------- Games Played ---------- */
+function getGameEntries(data) {
+  const gameCounts = {};
+  Object.keys(data.players).forEach(p => gameCounts[p] = 0);
+  data.matches.forEach(m => {
+    [...m.teamA, ...m.teamB].forEach(p => {
+      gameCounts[p] = (gameCounts[p] || 0) + 1;
+    });
+  });
+  return Object.entries(gameCounts).sort((a, b) => b[1] - a[1]);
+}
+
 /* ---------- Share ---------- */
 function shareToWhatsApp() {
   const data = load();
@@ -216,6 +228,14 @@ function shareToWhatsApp() {
     </div>`;
   }).join("");
 
+  // Build games played HTML
+  const gamesRows = getGameEntries(data).map(([p, count], i) =>
+    `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid #f1f5f9;">
+      <span style="font-weight:600;color:#334155;">${i + 1}. ${p}</span>
+      <span style="color:#475569;font-weight:700;font-size:13px;">${count}</span>
+    </div>`
+  ).join("");
+
   if (typeof html2canvas === "undefined") {
     alert("Image library failed to load. Please check your internet connection and try again.");
     return;
@@ -231,6 +251,11 @@ function shareToWhatsApp() {
     btn.innerHTML = originalHTML;
   };
 
+  const sectionTitle = text =>
+    `<div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">${text}</div>`;
+  const emptyRow = text =>
+    `<div style="padding:16px;text-align:center;color:#cbd5e1;">${text}</div>`;
+
   // Build the off-screen container
   const container = document.createElement("div");
   container.style.cssText = "position:fixed;left:-9999px;top:0;width:400px;background:#ffffff;font-family:Inter,system-ui,sans-serif;padding:24px;";
@@ -240,53 +265,55 @@ function shareToWhatsApp() {
       <div style="font-size:18px;font-weight:800;color:#1e293b;">Badminton Tracker</div>
     </div>
     <div style="margin-bottom:20px;">
-      <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">🏆 Leaderboard</div>
+      ${sectionTitle("🏆 Leaderboard")}
       <div style="background:#fff;border-radius:12px;border:1px solid #e2e8f0;overflow:hidden;">
-        ${leaderboardRows || '<div style="padding:16px;text-align:center;color:#cbd5e1;">No players yet</div>'}
+        ${leaderboardRows || emptyRow("No players yet")}
       </div>
     </div>
+    <div style="margin-bottom:20px;">
+      ${sectionTitle("📜 Match History")}
+      ${matchRows || emptyRow("No matches yet")}
+    </div>
     <div>
-      <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">📜 Match History</div>
-      ${matchRows || '<div style="padding:16px;text-align:center;color:#cbd5e1;">No matches yet</div>'}
+      ${sectionTitle("🎮 Games Played")}
+      <div style="background:#fff;border-radius:12px;border:1px solid #e2e8f0;overflow:hidden;">
+        ${gamesRows || emptyRow("No players yet")}
+      </div>
     </div>
   `;
   document.body.appendChild(container);
 
-  html2canvas(container, { scale: 2, backgroundColor: "#ffffff", useCORS: true }).then(canvas => {
-    document.body.removeChild(container);
-    canvas.toBlob(blob => {
-      const file = new File([blob], "badminton-results.png", { type: "image/png" });
+  const blobPromise = html2canvas(container, { scale: 2, backgroundColor: "#ffffff", useCORS: true })
+    .then(canvas => new Promise((resolve, reject) =>
+      canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("Could not create image")), "image/png")
+    ))
+    .finally(() => {
+      if (container.parentNode) document.body.removeChild(container);
+    });
 
-      const downloadImage = () => {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "badminton-results.png";
-        a.click();
-        URL.revokeObjectURL(url);
-      };
+  const downloadImage = blob => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "badminton-results.png";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
-      // Use Web Share API if available (requires HTTPS + mobile OS support)
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        navigator.share({
-          files: [file],
-          title: "Badminton Tracker Results",
-        }).then(() => {
-          restoreBtn();
-        }).catch(err => {
-          if (err.name !== "AbortError") {
-            downloadImage();
-            alert("Image saved! Open WhatsApp and attach the downloaded file to share.");
-          }
-          restoreBtn();
-        });
-      } else {
-        downloadImage();
-        restoreBtn();
-      }
-    }, "image/png");
-  }).catch(err => {
-    if (container.parentNode) document.body.removeChild(container);
+  // Copy to clipboard. ClipboardItem must be created synchronously within the tap
+  // (iOS Safari requirement), so it is handed the pending blob promise.
+  const copied = window.ClipboardItem && navigator.clipboard?.write
+    ? navigator.clipboard.write([new ClipboardItem({ "image/png": blobPromise })])
+    : Promise.reject(new Error("Clipboard not supported"));
+
+  copied.then(() => {
+    btn.innerHTML = "✓ Copied! Paste in WhatsApp";
+    setTimeout(restoreBtn, 2000);
+  }).catch(() => blobPromise.then(blob => {
+    downloadImage(blob);
+    alert("Couldn't copy to clipboard, so the image was downloaded instead.");
+    restoreBtn();
+  })).catch(err => {
     alert("Failed to generate image: " + err.message);
     restoreBtn();
   });
@@ -436,15 +463,7 @@ function render() {
     `}).join("");
 
   /* Games Played */
-  const gameCounts = {};
-  Object.keys(data.players).forEach(p => gameCounts[p] = 0);
-  data.matches.forEach(m => {
-    [...m.teamA, ...m.teamB].forEach(p => {
-      gameCounts[p] = (gameCounts[p] || 0) + 1;
-    });
-  });
-
-  const gameEntries = Object.entries(gameCounts).sort((a, b) => b[1] - a[1]);
+  const gameEntries = getGameEntries(data);
   const gamesPlayedEl = document.getElementById("gamesPlayed");
   if (gamesPlayedEl) {
     gamesPlayedEl.innerHTML = gameEntries.length === 0
