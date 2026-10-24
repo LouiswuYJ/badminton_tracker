@@ -8,6 +8,7 @@ function load() {
     removedPlayers: []
   };
   data.removedPlayers ??= [];
+  purgeRemovedPlayers(data);
   return data;
 }
 
@@ -28,9 +29,24 @@ function addPlayer() {
   render();
 }
 
+// Removed players stay (restorable) only while they appear in match history;
+// once they have no matches left they are deleted for good
+function purgeRemovedPlayers(data) {
+  const inHistory = new Set(data.matches.flatMap(m => [...m.teamA, ...m.teamB]));
+  data.removedPlayers = data.removedPlayers.filter(p => {
+    if (inHistory.has(p)) return true;
+    delete data.players[p];
+    return false;
+  });
+}
+
 function removePlayer(name) {
-  if (!confirm(`Remove "${name}" from the player list?`)) return;
   const data = load();
+  const hasMatches = data.matches.some(m => [...m.teamA, ...m.teamB].includes(name));
+  const msg = hasMatches
+    ? `Remove "${name}" from the player list?\n\nThey'll stay on the leaderboard (restorable with ↩) until their matches are deleted or data is reset.`
+    : `Delete "${name}"? They have no matches, so they'll be deleted permanently.`;
+  if (!confirm(msg)) return;
   if (!data.removedPlayers.includes(name)) {
     data.removedPlayers.push(name);
   }
@@ -238,23 +254,24 @@ function buildShareText(data) {
   });
   lines.push("");
 
-  // Match history, oldest first, winning team in bold
+  // Match history, oldest first: score first (iOS digits are fixed-width, so names line up),
+  // winning team in bold, losing team on the next line
+  const FIGURE_SPACE = "\u2007"; // same width as a digit
+  const PUNCT_SPACE = "\u2008";  // same width as "."
   lines.push(`📜 *Match History* (${data.matches.length})`);
   if (data.matches.length === 0) lines.push("_No matches yet_");
   data.matches.forEach((m, i) => {
     const isWinA = m.winner === "A";
-    const teamA = m.teamA.join(" + ");
-    const teamB = m.teamB.join(" + ");
-    const score = m.scoreA !== null && m.scoreB !== null
-      ? `${m.scoreA} - ${m.scoreB}`
-      : (isWinA ? "W - L" : "L - W");
+    const hasScore = m.scoreA !== null && m.scoreB !== null;
+    // Full-width Ｗ/Ｌ have equal widths, unlike W and L
+    const mark = (score, won) => hasScore ? String(score).padStart(2, FIGURE_SPACE) : (won ? "Ｗ" : "Ｌ");
+    const winner = { team: isWinA ? m.teamA : m.teamB, score: isWinA ? m.scoreA : m.scoreB };
+    const loser = { team: isWinA ? m.teamB : m.teamA, score: isWinA ? m.scoreB : m.scoreA };
+    const num = `${i + 1}. `;
+    const indent = num.replace(/\d/g, FIGURE_SPACE).replace(".", PUNCT_SPACE);
     const double = m.points > 1 ? " ⚡2x" : "";
-    let time = "";
-    if (m.time) {
-      const d = new Date(m.time);
-      time = ` _${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}_`;
-    }
-    lines.push(`${i + 1}. ${isWinA ? `*${teamA}*` : teamA}  ${score}  ${isWinA ? teamB : `*${teamB}*`}${double}${time}`);
+    lines.push(`${num}${mark(winner.score, true)}  *${winner.team.join(" + ")}*${double}`);
+    lines.push(`${indent}${mark(loser.score, false)}  ${loser.team.join(" + ")}`);
   });
   lines.push("");
 
@@ -445,6 +462,9 @@ function render() {
         </span>
       </li>
     `}).join("");
+
+  const removedHint = document.getElementById("removedHint");
+  if (removedHint) removedHint.classList.toggle("hidden", data.removedPlayers.length === 0);
 
   /* Games Played */
   const gameEntries = getGameEntries(data);
