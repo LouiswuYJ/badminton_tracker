@@ -161,10 +161,13 @@ function getGameEntries(data) {
 }
 
 /* ---------- Share ---------- */
-function shareToWhatsApp() {
-  const data = load();
+// Builds a WhatsApp-formatted text summary (*bold*, _italic_)
+function buildShareText(data) {
+  const lines = [];
+  const today = new Date().toLocaleDateString("en", { month: "short", day: "numeric" });
+  lines.push(`🏸 *Badminton Results* (${today})`, "");
 
-  // Build leaderboard HTML
+  // Leaderboard, tied scores share a rank
   const entries = Object.entries(data.players).sort((a, b) => b[1] - a[1]);
   const groups = [];
   entries.forEach(([p, s]) => {
@@ -175,148 +178,78 @@ function shareToWhatsApp() {
       groups.push({ names: [p], score: s });
     }
   });
-  groups.forEach((g, i) => g.rank = i + 1);
+  const medals = ["🥇", "🥈", "🥉"];
+  lines.push("🏆 *Leaderboard*");
+  if (groups.length === 0) lines.push("_No players yet_");
+  groups.forEach((g, i) => {
+    const sign = g.score > 0 ? "+" : "";
+    lines.push(`${medals[i] || `${i + 1}.`} ${g.names.join(", ")}: *${sign}${g.score}*`);
+  });
+  lines.push("");
 
-  const medals = { 1: "🥇", 2: "🥈", 3: "🥉" };
-  const leaderboardRows = groups.map(g => {
-    const medal = medals[g.rank] || "";
-    const s = g.score;
-    const sign = s > 0 ? "+" : "";
-    const scoreColor = s > 0 ? "#059669" : s < 0 ? "#dc2626" : "#64748b";
-    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid #f1f5f9;">
-      <span style="font-weight:600;color:#334155;">${g.rank}. ${medal} ${g.names.join(", ")}</span>
-      <span style="color:${scoreColor};font-weight:700;font-size:13px;">${sign}${s}</span>
-    </div>`;
-  }).join("");
-
-  // Build match history HTML (ascending)
-  const matchRows = data.matches.map(m => {
+  // Match history, oldest first, winning team in bold
+  lines.push(`📜 *Match History* (${data.matches.length})`);
+  if (data.matches.length === 0) lines.push("_No matches yet_");
+  data.matches.forEach((m, i) => {
     const isWinA = m.winner === "A";
-    let displayA, displayB;
-    if (m.scoreA !== null && m.scoreB !== null) {
-      displayA = m.scoreA;
-      displayB = m.scoreB;
-    } else {
-      displayA = isWinA ? "W" : "-";
-      displayB = !isWinA ? "W" : "-";
-    }
-    const dp = m.points > 1 ? ' <span style="background:#fef3c7;color:#b45309;font-size:10px;padding:1px 4px;border-radius:4px;">2x</span>' : "";
-
-    let timeStr = "";
+    const teamA = m.teamA.join(" + ");
+    const teamB = m.teamB.join(" + ");
+    const score = m.scoreA !== null && m.scoreB !== null
+      ? `${m.scoreA} - ${m.scoreB}`
+      : (isWinA ? "W - L" : "L - W");
+    const double = m.points > 1 ? " ⚡2x" : "";
+    let time = "";
     if (m.time) {
       const d = new Date(m.time);
-      const month = d.toLocaleString("en", { month: "short" });
-      const day = d.getDate();
-      const hours = d.getHours().toString().padStart(2, "0");
-      const mins = d.getMinutes().toString().padStart(2, "0");
-      timeStr = `<div style="font-size:10px;color:#94a3b8;text-align:center;margin-top:2px;">${month} ${day}, ${hours}:${mins}</div>`;
+      time = ` _${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}_`;
     }
+    lines.push(`${i + 1}. ${isWinA ? `*${teamA}*` : teamA}  ${score}  ${isWinA ? teamB : `*${teamB}*`}${double}${time}`);
+  });
+  lines.push("");
 
-    return `<div style="background:#f8fafc;border-radius:8px;padding:8px 10px;margin-bottom:6px;border:1px solid #f1f5f9;">
-      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
-        <span style="font-weight:${isWinA ? 700 : 400};color:${isWinA ? '#334155' : '#94a3b8'};flex:1;text-align:right;padding-right:6px;">${m.teamA.join(" + ")}</span>
-        <span style="color:#cbd5e1;font-size:10px;">vs</span>
-        <span style="font-weight:${!isWinA ? 700 : 400};color:${!isWinA ? '#334155' : '#94a3b8'};flex:1;text-align:left;padding-left:6px;">${m.teamB.join(" + ")}</span>
-      </div>
-      <div style="text-align:center;font-family:monospace;font-size:14px;">
-        <span style="color:${isWinA ? '#059669' : '#cbd5e1'};font-weight:700;">${displayA}</span>
-        <span style="color:#e2e8f0;margin:0 6px;">-</span>
-        <span style="color:${!isWinA ? '#059669' : '#cbd5e1'};font-weight:700;">${displayB}</span>
-        ${dp}
-      </div>
-      ${timeStr}
-    </div>`;
-  }).join("");
+  lines.push("🎮 *Games Played*");
+  const gameEntries = getGameEntries(data);
+  if (gameEntries.length === 0) lines.push("_No players yet_");
+  gameEntries.forEach(([p, count]) => lines.push(`${p}: ${count}`));
 
-  // Build games played HTML
-  const gamesRows = getGameEntries(data).map(([p, count], i) =>
-    `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid #f1f5f9;">
-      <span style="font-weight:600;color:#334155;">${i + 1}. ${p}</span>
-      <span style="color:#475569;font-weight:700;font-size:13px;">${count}</span>
-    </div>`
-  ).join("");
+  return lines.join("\n");
+}
 
-  if (typeof html2canvas === "undefined") {
-    alert("Image library failed to load. Please check your internet connection and try again.");
-    return;
-  }
+// execCommand fallback works on iOS Safari and over plain HTTP
+function copyTextFallback(text) {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.setAttribute("readonly", "");
+  ta.style.cssText = "position:fixed;top:0;left:0;opacity:0;font-size:16px;";
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.setSelectionRange(0, text.length);
+  const ok = document.execCommand("copy");
+  document.body.removeChild(ta);
+  return ok;
+}
 
+function shareToWhatsApp() {
+  const text = buildShareText(load());
   const btn = document.getElementById("shareBtn");
   const originalHTML = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = '<svg class="animate-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Generating...';
 
-  const restoreBtn = () => {
-    btn.disabled = false;
-    btn.innerHTML = originalHTML;
-  };
-
-  const sectionTitle = text =>
-    `<div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">${text}</div>`;
-  const emptyRow = text =>
-    `<div style="padding:16px;text-align:center;color:#cbd5e1;">${text}</div>`;
-
-  // Build the off-screen container
-  const container = document.createElement("div");
-  container.style.cssText = "position:fixed;left:-9999px;top:0;width:400px;background:#ffffff;font-family:Inter,system-ui,sans-serif;padding:24px;";
-  container.innerHTML = `
-    <div style="text-align:center;margin-bottom:20px;">
-      <div style="font-size:24px;margin-bottom:4px;">🏸</div>
-      <div style="font-size:18px;font-weight:800;color:#1e293b;">Badminton Tracker</div>
-    </div>
-    <div style="margin-bottom:20px;">
-      ${sectionTitle("🏆 Leaderboard")}
-      <div style="background:#fff;border-radius:12px;border:1px solid #e2e8f0;overflow:hidden;">
-        ${leaderboardRows || emptyRow("No players yet")}
-      </div>
-    </div>
-    <div style="margin-bottom:20px;">
-      ${sectionTitle("📜 Match History")}
-      ${matchRows || emptyRow("No matches yet")}
-    </div>
-    <div>
-      ${sectionTitle("🎮 Games Played")}
-      <div style="background:#fff;border-radius:12px;border:1px solid #e2e8f0;overflow:hidden;">
-        ${gamesRows || emptyRow("No players yet")}
-      </div>
-    </div>
-  `;
-  document.body.appendChild(container);
-
-  const blobPromise = html2canvas(container, { scale: 2, backgroundColor: "#ffffff", useCORS: true })
-    .then(canvas => new Promise((resolve, reject) =>
-      canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("Could not create image")), "image/png")
-    ))
-    .finally(() => {
-      if (container.parentNode) document.body.removeChild(container);
-    });
-
-  const downloadImage = blob => {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "badminton-results.png";
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  // Copy to clipboard. ClipboardItem must be created synchronously within the tap
-  // (iOS Safari requirement), so it is handed the pending blob promise.
-  const copied = window.ClipboardItem && navigator.clipboard?.write
-    ? navigator.clipboard.write([new ClipboardItem({ "image/png": blobPromise })])
-    : Promise.reject(new Error("Clipboard not supported"));
-
-  copied.then(() => {
+  const done = ok => {
+    if (!ok) {
+      window.prompt("Copy failed. Long-press to copy manually:", text);
+      return;
+    }
     btn.innerHTML = "✓ Copied! Paste in WhatsApp";
-    setTimeout(restoreBtn, 2000);
-  }).catch(() => blobPromise.then(blob => {
-    downloadImage(blob);
-    alert("Couldn't copy to clipboard, so the image was downloaded instead.");
-    restoreBtn();
-  })).catch(err => {
-    alert("Failed to generate image: " + err.message);
-    restoreBtn();
-  });
+    setTimeout(() => btn.innerHTML = originalHTML, 2000);
+  };
+
+  if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => done(true))
+      .catch(() => done(copyTextFallback(text)));
+  } else {
+    done(copyTextFallback(text));
+  }
 }
 
 /* ---------- Reset ---------- */
