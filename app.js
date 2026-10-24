@@ -75,6 +75,22 @@ function saveMatch(forcedWinner = null) {
     b = null;
     winner = forcedWinner;
   } else {
+    const rawA = scoreA.value.trim();
+    const rawB = scoreB.value.trim();
+
+    // Only one side entered: auto-fill the other with 21, unless deuce (20+) made it ambiguous
+    if ((rawA === "") !== (rawB === "")) {
+      const filled = Number(rawA || rawB);
+      if (filled >= 20) {
+        alert("Score is 20 or above, please enter both scores");
+        return;
+      }
+      (rawA === "" ? scoreA : scoreB).value = 21;
+    } else if (rawA === "") {
+      alert("Please enter a score");
+      return;
+    }
+
     a = Number(scoreA.value);
     b = Number(scoreB.value);
     if (a === b || isNaN(a) || isNaN(b)) {
@@ -278,10 +294,15 @@ function shareToWhatsApp() {
 
 /* ---------- Reset ---------- */
 function resetData() {
-  if (confirm("Are you sure you want to delete all data? This cannot be undone.")) {
-    localStorage.removeItem(KEY);
-    location.reload();
-  }
+  if (!confirm("Reset all scores and match history? Player names will be kept.")) return;
+  const data = load();
+  const players = {};
+  Object.keys(data.players)
+    .filter(n => !data.removedPlayers.includes(n))
+    .forEach(n => players[n] = 0);
+  save({ players, matches: [], removedPlayers: [] });
+  selected = [];
+  render();
 }
 
 /* ---------- Render ---------- */
